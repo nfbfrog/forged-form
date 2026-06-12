@@ -31,6 +31,7 @@ import { perMealFloor } from '../utils/protein'
 import { useToday } from '../utils/useToday'
 
 type CycleContext = DailyLog['cycleContext']
+type AnchorKey = 'steps' | 'water' | 'sleep'
 
 const habitMeta: Record<HabitKey, { label: string; icon: typeof Salad }> = {
   protein: { label: 'Protein', icon: Salad },
@@ -61,6 +62,8 @@ export function TodayScreen() {
   const [proteinSheetOpen, setProteinSheetOpen] = useState(false)
   const [customAmount, setCustomAmount] = useState('')
   const [resetArmed, setResetArmed] = useState(false)
+  const [anchorSheet, setAnchorSheet] = useState<AnchorKey | null>(null)
+  const [anchorInput, setAnchorInput] = useState('')
   const [liftOpen, setLiftOpen] = useState(false)
   const [signalsOpen, setSignalsOpen] = useState(false)
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
@@ -71,6 +74,9 @@ export function TodayScreen() {
 
   const log = normalizeDailyLog(storedLog ?? createDailyLog(date), settings?.lifeStage)
   const target = settings?.proteinTarget ?? 140
+  const waterTarget = settings?.waterTarget ?? 80
+  const stepTarget = settings?.stepTarget ?? 8000
+  const sleepTarget = settings?.sleepTarget ?? 7.5
   const percent = Math.min(100, Math.round((log.protein / target) * 100))
   const completeCount = habitKeys.filter((key) => log.habits[key]).length
 
@@ -116,6 +122,26 @@ export function TodayScreen() {
     else haptics.tick()
   }
 
+  // Numeric anchors track a real tally against the target the user set, instead of a one-tap toggle.
+  // habits[key] mirrors "target met" so the Week grid and coach summary stay consistent.
+  async function setAnchor(field: 'water' | 'steps' | 'sleepHours', habit: HabitKey, value: number, anchorTarget: number) {
+    const next = Math.max(0, value)
+    const crossed = (log[field] ?? 0) < anchorTarget && next >= anchorTarget
+    await save((current) => ({
+      ...current,
+      [field]: next,
+      habits: { ...current.habits, [habit]: anchorTarget > 0 && next >= anchorTarget },
+    }))
+    if (crossed && completeCount === 4) haptics.success()
+    else haptics.tick()
+  }
+
+  function openAnchor(key: AnchorKey) {
+    const seed = key === 'steps' ? log.steps : key === 'sleep' ? log.sleepHours : 0
+    setAnchorInput(seed ? String(seed) : '')
+    setAnchorSheet(key)
+  }
+
   const ringItems: AnchorRingItem[] = [
     {
       key: 'protein',
@@ -125,14 +151,41 @@ export function TodayScreen() {
       complete: log.habits.protein || log.protein >= target,
       detail: `${log.protein}g`,
     },
-    ...(['movement', 'steps', 'water', 'sleep'] as HabitKey[]).map((key) => ({
-      key,
-      label: habitMeta[key].label,
-      icon: habitMeta[key].icon,
-      progress: log.habits[key] ? 1 : 0,
-      complete: log.habits[key],
-      onToggle: () => void toggleHabit(key),
-    })),
+    {
+      key: 'movement',
+      label: habitMeta.movement.label,
+      icon: habitMeta.movement.icon,
+      progress: log.habits.movement ? 1 : 0,
+      complete: log.habits.movement,
+      onToggle: () => void toggleHabit('movement'),
+    },
+    {
+      key: 'steps',
+      label: habitMeta.steps.label,
+      icon: habitMeta.steps.icon,
+      progress: stepTarget > 0 ? (log.steps ?? 0) / stepTarget : 0,
+      complete: (log.steps ?? 0) >= stepTarget && stepTarget > 0,
+      detail: (log.steps ?? 0).toLocaleString(),
+      onToggle: () => openAnchor('steps'),
+    },
+    {
+      key: 'water',
+      label: habitMeta.water.label,
+      icon: habitMeta.water.icon,
+      progress: waterTarget > 0 ? (log.water ?? 0) / waterTarget : 0,
+      complete: (log.water ?? 0) >= waterTarget && waterTarget > 0,
+      detail: `${log.water ?? 0}oz`,
+      onToggle: () => openAnchor('water'),
+    },
+    {
+      key: 'sleep',
+      label: habitMeta.sleep.label,
+      icon: habitMeta.sleep.icon,
+      progress: sleepTarget > 0 ? (log.sleepHours ?? 0) / sleepTarget : 0,
+      complete: (log.sleepHours ?? 0) >= sleepTarget && sleepTarget > 0,
+      detail: `${log.sleepHours ?? 0}h`,
+      onToggle: () => openAnchor('sleep'),
+    },
   ]
 
   // Logging stays fast; the only prose on this screen is a safety line when logged signals warrant one.
@@ -391,6 +444,72 @@ export function TodayScreen() {
         </BottomSheet>
       ) : null}
 
+      {anchorSheet === 'water' ? (
+        <BottomSheet title="Add water" onClose={() => setAnchorSheet(null)}>
+          <p className="sheet-total">{log.water ?? 0} / {waterTarget} oz today</p>
+          <div className="sheet-chips">
+            {[8, 12, 16].map((oz) => (
+              <button key={oz} type="button" onClick={() => void setAnchor('water', 'water', (log.water ?? 0) + oz, waterTarget)}>
+                +{oz} oz
+              </button>
+            ))}
+          </div>
+          <div className="sheet-row">
+            <button type="button" className="secondary-button" disabled={(log.water ?? 0) <= 0} onClick={() => void setAnchor('water', 'water', (log.water ?? 0) - 8, waterTarget)}>
+              Remove a cup
+            </button>
+            <button type="button" className="secondary-button" disabled={(log.water ?? 0) <= 0} onClick={() => void setAnchor('water', 'water', 0, waterTarget)}>
+              Reset
+            </button>
+          </div>
+        </BottomSheet>
+      ) : null}
+
+      {anchorSheet === 'steps' || anchorSheet === 'sleep' ? (
+        <BottomSheet
+          title={anchorSheet === 'steps' ? "Today's steps" : "Last night's sleep"}
+          onClose={() => setAnchorSheet(null)}
+        >
+          <div className="sheet-chips">
+            {(anchorSheet === 'steps' ? [5000, 8000, 10000] : [6, 7, 8]).map((preset) => (
+              <button key={preset} type="button" onClick={() => setAnchorInput(String(preset))}>
+                {anchorSheet === 'steps' ? preset.toLocaleString() : `${preset}h`}
+              </button>
+            ))}
+          </div>
+          <form
+            className="sheet-row"
+            onSubmit={(event) => {
+              event.preventDefault()
+              const value = Number(anchorInput)
+              if (!Number.isFinite(value) || value < 0) return
+              if (anchorSheet === 'steps') void setAnchor('steps', 'steps', Math.round(value), stepTarget)
+              else void setAnchor('sleepHours', 'sleep', value, sleepTarget)
+              setAnchorSheet(null)
+            }}
+          >
+            <label className="field">
+              <span>{anchorSheet === 'steps' ? 'Step count' : 'Hours slept'}</span>
+              <div className="input-suffix">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step={anchorSheet === 'steps' ? '100' : '0.5'}
+                  autoFocus
+                  value={anchorInput}
+                  onChange={(event) => setAnchorInput(event.target.value)}
+                />
+                <small>{anchorSheet === 'steps' ? 'steps' : 'h'}</small>
+              </div>
+            </label>
+            <button type="submit" className="primary-button" disabled={anchorInput === '' || Number(anchorInput) < 0}>
+              Save
+            </button>
+          </form>
+        </BottomSheet>
+      ) : null}
+
       <p className="cycle-hint">
         Sessions done this week: {sessionsDone}/4. Context and signals feed your Week trends and coach summary.
       </p>
@@ -408,6 +527,9 @@ function normalizeDailyLog(log: DailyLog, lifeStage?: string): DailyLog {
     ...log,
     habits: { ...base.habits, ...log.habits },
     proteinEntries: Array.isArray(log.proteinEntries) ? log.proteinEntries : [],
+    water: log.water ?? 0,
+    steps: log.steps ?? 0,
+    sleepHours: log.sleepHours ?? 0,
     cycleContext: log.cycleContext ?? fallbackContext,
     symptoms: Array.isArray(log.symptoms) ? log.symptoms : [],
   }

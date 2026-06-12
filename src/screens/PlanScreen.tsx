@@ -1,12 +1,34 @@
-import { ArrowLeftRight, CookingPot, GlassWater, Leaf, Zap } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeftRight, Check, CookingPot, GlassWater, Leaf, Plus, Zap } from 'lucide-react'
 import { menus } from '../data'
 import { SectionHeading } from '../App'
+import { db, getOrCreateDailyLog } from '../db'
+import { localDateKey } from '../utils/date'
+import { haptics } from '../utils/haptics'
 
 export function PlanScreen() {
+  const [logged, setLogged] = useState<string | null>(null)
+
+  async function logMeal(name: string, protein: number) {
+    const date = localDateKey()
+    const current = await getOrCreateDailyLog(date)
+    const target = (await db.settings.get('primary'))?.proteinTarget ?? 140
+    const total = current.protein + protein
+    await db.dailyLogs.put({
+      ...current,
+      protein: total,
+      proteinEntries: [...(current.proteinEntries ?? []), protein],
+      habits: { ...current.habits, protein: total >= target },
+    })
+    haptics.tick()
+    setLogged(name)
+    window.setTimeout(() => setLogged((prev) => (prev === name ? null : prev)), 1800)
+  }
+
   return (
     <div className="content-stack">
       <section>
-        <SectionHeading title="Two-menu rotation" detail="Gram weights make the plan repeatable. Adjust total intake in settings with your clinician or dietitian." />
+        <SectionHeading title="Two-menu rotation" detail="Gram weights make the plan repeatable. Tap Log to add a meal's protein to today." />
         <div className="menu-grid">
           {menus.map((menu) => (
             <article className="menu-card" key={menu.id}>
@@ -20,6 +42,14 @@ export function PlanScreen() {
                     <span className="meal-number">{index + 1}</span>
                     <p><strong>{meal.name}</strong><small>{meal.amount}</small></p>
                     <b>{meal.protein}g</b>
+                    <button
+                      type="button"
+                      className={`meal-log ${logged === meal.name ? 'done' : ''}`}
+                      onClick={() => void logMeal(meal.name, meal.protein)}
+                      aria-label={`Log ${meal.name}, ${meal.protein} grams protein`}
+                    >
+                      {logged === meal.name ? <><Check size={14} /> Logged</> : <><Plus size={14} /> Log</>}
+                    </button>
                   </div>
                 ))}
               </div>

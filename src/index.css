@@ -1233,11 +1233,36 @@ input[type="range"] {
 .meal-row {
   min-height: 83px;
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
+  grid-template-columns: 28px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--line);
+}
+
+.meal-log {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 11px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line-dark);
+  border-radius: var(--radius-control);
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease;
+}
+
+.meal-log:hover {
+  border-color: var(--accent-strong);
+}
+
+.meal-log.done {
+  color: var(--accent-text);
+  background: var(--mint);
+  border-color: var(--mint-border);
 }
 
 .meal-number {
@@ -2455,6 +2480,13 @@ input[type="range"] {
   gap: 10px;
 }
 
+.sheet-total {
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
 /* Onboarding */
 
 .onboarding {
@@ -2825,6 +2857,16 @@ input[type="range"] {
     min-height: 32px;
     padding-inline: 10px;
     font-size: 9px;
+  }
+
+  .meal-row {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    row-gap: 8px;
+  }
+
+  .meal-log {
+    grid-column: 2 / -1;
+    justify-content: center;
   }
 
   .checkin-grid,

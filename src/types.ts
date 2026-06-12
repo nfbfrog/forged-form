@@ -7,6 +7,10 @@ export type DailyLog = {
   calories: number
   /** Individual protein additions logged today, used to count meals that clear the per-meal floor. */
   proteinEntries?: number[]
+  /** Numeric anchor tallies tracked against their targets; habits[key] mirrors "target met". */
+  water?: number
+  steps?: number
+  sleepHours?: number
   habits: Record<HabitKey, boolean>
   appetite: number
   energy: number
@@ -80,6 +84,9 @@ export const createDailyLog = (date: string): DailyLog => ({
   protein: 0,
   calories: 0,
   proteinEntries: [],
+  water: 0,
+  steps: 0,
+  sleepHours: 0,
   habits: emptyHabits(),
   appetite: 3,
   energy: 3,
