@@ -28,6 +28,7 @@ import { createDailyLog, habitKeys, type DailyLog, type HabitKey } from '../type
 import { friendlyDate, localDateKey, startOfWeek } from '../utils/date'
 import { haptics } from '../utils/haptics'
 import { perMealFloor } from '../utils/protein'
+import { useToday } from '../utils/useToday'
 
 type CycleContext = DailyLog['cycleContext']
 
@@ -55,7 +56,7 @@ const energyWords = ['Flat', 'Low', 'Steady', 'Good', 'Strong']
 const nauseaWords = ['None', 'Mild', 'Moderate', 'Strong']
 
 export function TodayScreen() {
-  const date = localDateKey()
+  const date = useToday()
   const weekStart = localDateKey(startOfWeek())
   const [proteinSheetOpen, setProteinSheetOpen] = useState(false)
   const [customAmount, setCustomAmount] = useState('')
@@ -89,6 +90,7 @@ export function TodayScreen() {
       return {
         ...current,
         protein,
+        proteinEntries: [...(current.proteinEntries ?? []), amount],
         habits: { ...current.habits, protein: protein >= target },
       }
     })
@@ -170,6 +172,7 @@ export function TodayScreen() {
                 void save((current) => ({
                   ...current,
                   protein: 0,
+                  proteinEntries: [],
                   habits: { ...current.habits, protein: false },
                 }))
               }}
@@ -202,11 +205,18 @@ export function TodayScreen() {
             Custom
           </button>
         </div>
-        {settings?.bodyWeightLb ? (
-          <p className="per-meal-hint">
-            Aim for ~{perMealFloor(settings.bodyWeightLb)}g per meal — spreading protein across the day builds more muscle than one big hit.
-          </p>
-        ) : null}
+        {settings?.bodyWeightLb ? (() => {
+          const floor = perMealFloor(settings.bodyWeightLb)
+          const doses = (log.proteinEntries ?? []).filter((amount) => amount >= floor).length
+          return (
+            <p className="per-meal-hint">
+              {doses > 0
+                ? `${doses} ${doses === 1 ? 'meal has' : 'meals have'} cleared the ~${floor}g floor today. `
+                : `Aim for ~${floor}g per meal. `}
+              Spreading protein across the day builds more muscle than one big hit.
+            </p>
+          )
+        })() : null}
       </section>
 
       <section className="fold-card">
@@ -397,6 +407,7 @@ function normalizeDailyLog(log: DailyLog, lifeStage?: string): DailyLog {
     ...base,
     ...log,
     habits: { ...base.habits, ...log.habits },
+    proteinEntries: Array.isArray(log.proteinEntries) ? log.proteinEntries : [],
     cycleContext: log.cycleContext ?? fallbackContext,
     symptoms: Array.isArray(log.symptoms) ? log.symptoms : [],
   }

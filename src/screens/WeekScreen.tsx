@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AlertTriangle, Camera, Check, Circle, HeartPulse, ShieldCheck, TrendingDown } from 'lucide-react'
 import { db } from '../db'
@@ -9,6 +10,7 @@ import { classifyBloodPressure, weightLossStatus, type BpStatus } from '../utils
 import { friendlyDate, localDateKey, startOfWeek, weekKeys } from '../utils/date'
 import { formatRate, weeklyRate, type TrendPoint } from '../utils/trends'
 import { topSymptomPattern } from '../utils/patterns'
+import { useToday } from '../utils/useToday'
 
 const shortHabit = {
   protein: 'Protein',
@@ -19,6 +21,7 @@ const shortHabit = {
 }
 
 export function WeekScreen() {
+  const today = useToday()
   const days = weekKeys()
   const weekStart = localDateKey(startOfWeek())
   const logs = useLiveQuery(() => db.dailyLogs.where('date').anyOf(days).toArray(), [weekStart]) ?? []
@@ -93,7 +96,7 @@ export function WeekScreen() {
         <div className="week-grid">
           <div className="week-corner" />
           {days.map((day) => (
-            <div key={day} className={`day-head ${day === localDateKey() ? 'today' : ''}`}>
+            <div key={day} className={`day-head ${day === today ? 'today' : ''}`}>
               <span>{friendlyDate(day, { weekday: 'narrow' })}</span>
               <strong>{friendlyDate(day, { day: 'numeric' })}</strong>
             </div>
@@ -243,6 +246,23 @@ function NumberField({
   value?: number
   onChange: (value: number | undefined) => void
 }) {
+  // Local draft so typing doesn't write to the DB on every keystroke; commit is debounced
+  // (and on blur). Resync from the live value during render only while not being edited
+  // (React's "adjust state when a prop changes" pattern — no effect, no keystroke clobber).
+  const [draft, setDraft] = useState(value === undefined ? '' : String(value))
+  const [focused, setFocused] = useState(false)
+  const [lastValue, setLastValue] = useState(value)
+  const timer = useRef<number | undefined>(undefined)
+
+  if (!focused && value !== lastValue) {
+    setLastValue(value)
+    setDraft(value === undefined ? '' : String(value))
+  }
+
+  const commit = (raw: string) => {
+    onChange(raw === '' ? undefined : Number(raw))
+  }
+
   return (
     <label className="field">
       <span>{label}</span>
@@ -250,8 +270,19 @@ function NumberField({
         <input
           type="number"
           inputMode="decimal"
-          value={value ?? ''}
-          onChange={(event) => onChange(event.target.value ? Number(event.target.value) : undefined)}
+          value={draft}
+          onFocus={() => setFocused(true)}
+          onChange={(event) => {
+            const raw = event.target.value
+            setDraft(raw)
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => commit(raw), 600)
+          }}
+          onBlur={(event) => {
+            setFocused(false)
+            window.clearTimeout(timer.current)
+            commit(event.target.value)
+          }}
         />
         <small>{suffix}</small>
       </div>

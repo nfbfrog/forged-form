@@ -5,6 +5,8 @@ export type DailyLog = {
   date: string
   protein: number
   calories: number
+  /** Individual protein additions logged today, used to count meals that clear the per-meal floor. */
+  proteinEntries?: number[]
   habits: Record<HabitKey, boolean>
   appetite: number
   energy: number
@@ -77,6 +79,7 @@ export const createDailyLog = (date: string): DailyLog => ({
   date,
   protein: 0,
   calories: 0,
+  proteinEntries: [],
   habits: emptyHabits(),
   appetite: 3,
   energy: 3,

@@ -121,6 +121,15 @@ export const researchItems = [
   },
 ]
 
+export const clinicianQuestions = [
+  'Which symptoms or trends are normal for my life stage, and which are not?',
+  'Do my cycle, sleep, appetite, training, and mood notes change what we should check?',
+  'Which labs are worth repeating, and what timing matters for interpretation?',
+  'Is my ferritin / iron status where it should be given my symptoms?',
+  'What symptoms mean I should stop training hard or seek urgent care?',
+  'Are my blood pressure and resting pulse trends anything to act on?',
+]
+
 // Markers a user can log over time. Only ferritin carries an evidence-backed status flag
 // (see classifyFerritin); the rest trend as plain values so the app never invents thresholds.
 export const labMarkers: Array<{ id: string; label: string; unit: string; flagged?: boolean }> = [

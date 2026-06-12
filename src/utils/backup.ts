@@ -16,6 +16,7 @@ const backupSchema = z.object({
     date: z.string(),
     protein: z.number().nonnegative(),
     calories: z.number().nonnegative(),
+    proteinEntries: z.array(z.number()).optional(),
     habits: habitSchema,
     appetite: z.number().min(1).max(5),
     energy: z.number().min(1).max(5),

@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { AlertCircle, BookOpen, CheckCircle2, HeartPulse } from 'lucide-react'
+import { AlertCircle, BookOpen, ClipboardList, HeartPulse } from 'lucide-react'
 import { researchItems } from '../data'
 import { SectionHeading } from '../App'
+import { VisitPrep } from '../components/VisitPrep'
 
 const goals = [
   ['all', 'All'],
@@ -46,15 +47,15 @@ export function LearnScreen() {
         </div>
       </section>
       <section>
-        <SectionHeading title="Clinician conversation" detail="Bring patterns, not guesses." />
-        <div className="question-list">
-          {[
-            'Which symptoms or trends are normal for my life stage, and which are not?',
-            'Do my cycle, sleep, appetite, training, and mood notes change what we should check?',
-            'Which labs are worth repeating, and what timing matters for interpretation?',
-            'What symptoms mean I should stop training hard or seek urgent care?',
-          ].map((question) => <p key={question}><CheckCircle2 size={18} />{question}</p>)}
+        <SectionHeading
+          title="Visit prep"
+          detail="Turn your own logs into a one-page summary for a clinician or coach. Pick the questions you want to ask, then build, print, or copy it. Local and user-controlled."
+        />
+        <div className="visit-prep-intro">
+          <ClipboardList size={20} />
+          <p>Pulls your latest vitals, recent lab trends, and your strongest symptom pattern so the conversation starts from real data, not memory.</p>
         </div>
+        <VisitPrep />
       </section>
     </div>
   )
