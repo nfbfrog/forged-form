@@ -16,6 +16,7 @@ import {
 import { labReferences } from '../data'
 import { db, getOrCreateDailyLog } from '../db'
 import { SectionHeading } from '../App'
+import { LabLog } from '../components/LabLog'
 import { exportBackup, importBackup } from '../utils/backup'
 import {
   buildCoachSharePayload,
@@ -187,6 +188,11 @@ export function HealthScreen() {
           <Safety icon={ClipboardCheck} title="Before dose changes" text="Review intake, bowel changes, training recovery, mood, pulse, blood pressure, and any diabetes medicines with the prescribing clinician." />
           <Safety icon={ShieldCheck} title="Pregnancy plans" text="Semaglutide labeling says to discontinue when pregnancy is recognized and stop at least 2 months before a planned pregnancy. Confirm your exact medication with your clinician." />
         </div>
+      </section>
+
+      <section>
+        <SectionHeading title="Lab log" detail="Log your own results to see trends over time. Stored on this device only; never shared unless you export it." />
+        <LabLog />
       </section>
 
       <section>

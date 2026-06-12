@@ -121,6 +121,17 @@ export const researchItems = [
   },
 ]
 
+// Markers a user can log over time. Only ferritin carries an evidence-backed status flag
+// (see classifyFerritin); the rest trend as plain values so the app never invents thresholds.
+export const labMarkers: Array<{ id: string; label: string; unit: string; flagged?: boolean }> = [
+  { id: 'ferritin', label: 'Ferritin', unit: 'ng/mL', flagged: true },
+  { id: 'hemoglobin', label: 'Hemoglobin', unit: 'g/dL' },
+  { id: 'vitamin-d', label: 'Vitamin D (25-OH)', unit: 'ng/mL' },
+  { id: 'tsh', label: 'TSH', unit: 'mIU/L' },
+  { id: 'hba1c', label: 'HbA1c', unit: '%' },
+  { id: 'ldl', label: 'LDL cholesterol', unit: 'mg/dL' },
+]
+
 export const labReferences = [
   ['Ferritin (iron stores)', 'For women, the printed lab floor (often ~10-15 ng/mL) misses a lot of iron deficiency. Many clinicians treat under ~30 ng/mL as low and aim for ~50+ ng/mL for full repletion, especially with heavy periods, fatigue, hair shedding, or hard training. If yours is under ~30, it is worth discussing with your clinician.'],
   ['Blood pressure', 'Use home trends, not one reading. Under 120/80 mm Hg is considered normal by the AHA.'],

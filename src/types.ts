@@ -36,6 +36,15 @@ export type ExerciseEntry = {
   reps: number
 }
 
+export type LabResult = {
+  id?: number
+  date: string
+  marker: string
+  value: number
+  unit: string
+  note?: string
+}
+
 export type ThemePreference = 'system' | 'light' | 'dark'
 
 export type Settings = {

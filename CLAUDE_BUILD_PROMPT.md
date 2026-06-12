@@ -512,7 +512,8 @@ Current local IndexedDB stores (keep, extend additively with versioned Dexie mig
 - `dailyLogs` — date, protein, calories, habits, appetite, energy, nausea, cycle/body context, symptoms, notes, imported flag
 - `weeklyMetrics` — week start, weight, waist, blood pressure, resting pulse, progress photo flag, best lift, training sessions
 - `exerciseEntries` — date, session id, exercise id, weight, reps
-- `settings` — protein/calorie/water/step/sleep targets, life stage, metabolic support flag, hormone support flag
+- `labResults` (Dexie v3) — id, date, marker, value, unit, note. User-logged lab values trended over time in the Health tab; ferritin gets evidence-based status (see `utils/health.ts` `classifyFerritin`), other markers trend as plain values. Local-only, NOT in the coach packet (too sensitive); included in backups (schema v2).
+- `settings` — protein/calorie/water/step/sleep targets, life stage, metabolic/hormone flags, theme, onboarding flag, bodyWeightLb, proteinPerKg
 
 Planned new stores (add only in the phase that needs them):
 

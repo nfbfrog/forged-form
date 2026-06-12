@@ -4,6 +4,7 @@ import {
   defaultSettings,
   type DailyLog,
   type ExerciseEntry,
+  type LabResult,
   type Settings,
   type WeeklyMetric,
 } from './types'
@@ -12,6 +13,7 @@ class RhythmDatabase extends Dexie {
   dailyLogs!: EntityTable<DailyLog, 'date'>
   weeklyMetrics!: EntityTable<WeeklyMetric, 'weekStart'>
   exerciseEntries!: EntityTable<ExerciseEntry, 'id'>
+  labResults!: EntityTable<LabResult, 'id'>
   settings!: EntityTable<Settings, 'id'>
 
   constructor() {
@@ -26,6 +28,13 @@ class RhythmDatabase extends Dexie {
       dailyLogs: 'date',
       weeklyMetrics: 'weekStart',
       exerciseEntries: '++id,date,sessionId,exerciseId,[date+sessionId]',
+      settings: 'id',
+    })
+    this.version(3).stores({
+      dailyLogs: 'date',
+      weeklyMetrics: 'weekStart',
+      exerciseEntries: '++id,date,sessionId,exerciseId,[date+sessionId]',
+      labResults: '++id,marker,date,[marker+date]',
       settings: 'id',
     })
   }

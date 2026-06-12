@@ -10,7 +10,7 @@ const habitSchema = z.object({
 })
 
 const backupSchema = z.object({
-  version: z.literal(1),
+  version: z.union([z.literal(1), z.literal(2)]),
   exportedAt: z.string(),
   dailyLogs: z.array(z.object({
     date: z.string(),
@@ -44,6 +44,14 @@ const backupSchema = z.object({
     weight: z.number().nonnegative(),
     reps: z.number().int().nonnegative(),
   })),
+  labResults: z.array(z.object({
+    id: z.number().optional(),
+    date: z.string(),
+    marker: z.string(),
+    value: z.number(),
+    unit: z.string(),
+    note: z.string().optional(),
+  })).default([]),
   settings: z.array(z.object({
     id: z.literal('primary'),
     proteinTarget: z.number().positive(),
@@ -54,16 +62,22 @@ const backupSchema = z.object({
     lifeStage: z.enum(['cycling', 'perimenopause', 'postmenopause', 'other']),
     metabolicSupport: z.boolean(),
     hormoneSupport: z.boolean(),
+    // Preserve newer optional fields across export/restore.
+    theme: z.enum(['system', 'light', 'dark']).optional(),
+    onboardingComplete: z.boolean().optional(),
+    bodyWeightLb: z.number().positive().optional(),
+    proteinPerKg: z.number().positive().optional(),
   })),
 })
 
 export async function exportBackup() {
   const payload = {
-    version: 1 as const,
+    version: 2 as const,
     exportedAt: new Date().toISOString(),
     dailyLogs: await db.dailyLogs.toArray(),
     weeklyMetrics: await db.weeklyMetrics.toArray(),
     exerciseEntries: await db.exerciseEntries.toArray(),
+    labResults: await db.labResults.toArray(),
     settings: await db.settings.toArray(),
   }
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
@@ -77,16 +91,18 @@ export async function exportBackup() {
 
 export async function importBackup(file: File) {
   const parsed = backupSchema.parse(JSON.parse(await file.text()))
-  await db.transaction('rw', db.dailyLogs, db.weeklyMetrics, db.exerciseEntries, db.settings, async () => {
+  await db.transaction('rw', [db.dailyLogs, db.weeklyMetrics, db.exerciseEntries, db.labResults, db.settings], async () => {
     await Promise.all([
       db.dailyLogs.clear(),
       db.weeklyMetrics.clear(),
       db.exerciseEntries.clear(),
+      db.labResults.clear(),
       db.settings.clear(),
     ])
     await db.dailyLogs.bulkPut(parsed.dailyLogs)
     await db.weeklyMetrics.bulkPut(parsed.weeklyMetrics)
     await db.exerciseEntries.bulkPut(parsed.exerciseEntries)
+    await db.labResults.bulkPut(parsed.labResults)
     await db.settings.bulkPut(parsed.settings)
   })
 }

@@ -41,6 +41,32 @@ export function classifyBloodPressure(systolic?: number, diastolic?: number): Bp
   }
 }
 
+// Ferritin, women-specific: standard lab floors (~10-15 ng/mL) underdiagnose iron deficiency.
+// ~30 ng/mL is the pragmatic diagnostic concern point; ~50 ng/mL is physiologic repletion.
+// Framed as context to discuss with a clinician — never a diagnosis.
+export function classifyFerritin(value?: number): BpStatus | null {
+  if (value === undefined || value === null || Number.isNaN(value)) return null
+  if (value < 30) {
+    return {
+      label: 'Below ~30 ng/mL',
+      tone: 'watch',
+      detail: 'Often considered low iron stores for women even when the lab does not flag it. Worth discussing with your clinician, especially with fatigue, hair shedding, heavy periods, or hard training.',
+    }
+  }
+  if (value < 50) {
+    return {
+      label: 'Building (~30-50)',
+      tone: 'watch',
+      detail: 'Above the low-iron line but below the ~50 ng/mL repletion many clinicians aim for. Trend it and raise symptoms with your clinician.',
+    }
+  }
+  return {
+    label: 'Repleted (50+)',
+    tone: 'good',
+    detail: 'In the range often used as a repletion target. Keep trending under similar conditions.',
+  }
+}
+
 export function weightLossStatus(current?: number, previous?: number): BpStatus | null {
   if (!current || !previous) return null
   const change = previous - current

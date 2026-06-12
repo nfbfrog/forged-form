@@ -8,6 +8,7 @@ import { emptyHabits, habitKeys, type WeeklyMetric } from '../types'
 import { classifyBloodPressure, weightLossStatus, type BpStatus } from '../utils/health'
 import { friendlyDate, localDateKey, startOfWeek, weekKeys } from '../utils/date'
 import { formatRate, weeklyRate, type TrendPoint } from '../utils/trends'
+import { topSymptomPattern } from '../utils/patterns'
 
 const shortHabit = {
   protein: 'Protein',
@@ -30,6 +31,12 @@ export function WeekScreen() {
   const previousWeekStart = localDateKey(new Date(startOfWeek().getTime() - 7 * 24 * 60 * 60 * 1000))
   const previousMetric = useLiveQuery(() => db.weeklyMetrics.get(previousWeekStart), [previousWeekStart])
   const allMetrics = useLiveQuery(() => db.weeklyMetrics.toArray(), []) ?? []
+  // Symptom patterns emerge over multiple cycles, so look back ~6 weeks, not just this week.
+  const patternStart = localDateKey(new Date(startOfWeek().getTime() - 35 * 24 * 60 * 60 * 1000))
+  const recentLogs = useLiveQuery(
+    () => db.dailyLogs.where('date').between(patternStart, localDateKey(), true, true).toArray(),
+    [patternStart],
+  ) ?? []
 
   async function save(update: (current: WeeklyMetric) => WeeklyMetric) {
     const current = await db.weeklyMetrics.get(weekStart) ?? metric
@@ -63,6 +70,7 @@ export function WeekScreen() {
     metric.bestLift,
     metric.photo,
   ].filter(Boolean).length
+  const pattern = topSymptomPattern(recentLogs)
 
   return (
     <div className="content-stack">
@@ -101,6 +109,20 @@ export function WeekScreen() {
           ))}
         </div>
       </section>
+
+      {pattern ? (
+        <section>
+          <SectionHeading title="Patterns" detail="Descriptive only — what your own logs show over the last six weeks. Worth mentioning to a clinician." />
+          <article className="pattern-card">
+            <span className="pattern-eyebrow">Most-logged symptom</span>
+            <p>
+              <strong>{pattern.symptom}</strong> appeared on {pattern.count} days
+              {pattern.context ? <> — most often in your <strong>{pattern.context}</strong> logs ({pattern.contextCount} of {pattern.count}).</> : '.'}
+            </p>
+            <small>This is a personal pattern, not a diagnosis or a reason to change training.</small>
+          </article>
+        </section>
+      ) : null}
 
       <section>
         <SectionHeading title="Trends" detail="Six-week lines from your weekly check-ins. Direction beats any single number." />
