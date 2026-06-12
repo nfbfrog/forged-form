@@ -25,6 +25,12 @@ Current local URL:
 
 `http://localhost:4175/`
 
+Repo and live app:
+
+- Repo: `https://github.com/nfbfrog/formforge`
+- Live: `https://nfbfrog.github.io/formforge/`
+- Every push to `main` runs lint + tests + build in GitHub Actions and auto-deploys to the live URL on green.
+
 Validation:
 
 ```bash

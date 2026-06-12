@@ -16,6 +16,30 @@ FormForge should feel like the app a thoughtful friend who happens to be a great
 C:\Users\nfbfr\.claude\women-recomp-os
 ```
 
+## Ship Process (end-to-end)
+
+The project is a real repo with a live deployment. This is the canonical path for every change:
+
+1. Make changes locally; validate with `npm run lint`, `npm test`, `npm run build`.
+2. Commit on `main` and push:
+
+```text
+Repo: https://github.com/nfbfrog/formforge
+```
+
+3. GitHub Actions (`.github/workflows/deploy.yml`) runs lint + tests + build on every push to `main`. A failed check blocks the deploy.
+4. On green, it deploys to GitHub Pages automatically:
+
+```text
+Live: https://nfbfrog.github.io/formforge/
+```
+
+Build notes:
+
+- The Pages build sets `VITE_BASE=/formforge/`; local dev stays at `/`. Base is wired through `vite.config.ts` (including the PWA manifest `start_url`/`scope`).
+- Dev server port 4175 is enforced with `strictPort` in `vite.config.ts`.
+- Never commit `.env` files; Supabase keys are env vars only (see `.env.example`).
+
 ## Run / Validate
 
 ```bash
