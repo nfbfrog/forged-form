@@ -74,7 +74,7 @@ Audit decisions now locked into the product (2026-06-11):
 - Coach-share notes default OFF (opt-in); symptom counts stay default ON.
 - Topbar: h1 is always the tab name; flavor copy lives in the eyebrow.
 - Shape tokens: `--radius-card: 12px`, `--radius-control: 8px` — no hard-coded radii.
-- Design-system spec cards live in `design-system/` (six @dsCard previews, both themes) — push to a claude.ai/design project via DesignSync when logged in.
+- Design-system spec cards live in `public/design-system/` (six @dsCard previews, both themes) and deploy with the app — live style guide at `https://nfbfrog.github.io/formforge/design-system/`. To mirror them into a claude.ai/design project, run DesignSync from an interactive `claude` session after `/login` (this headless environment can't get design scopes).
 
 Latest verified state (Phase 1 + audit pass complete):
 
