@@ -1,8 +1,8 @@
-# FormForge Project Handoff
+# Forged-Form Project Handoff
 
 ## Product Direction
 
-FormForge is a mobile-first women's health and body recomposition app.
+Forged-Form is a mobile-first women's health and body recomposition app.
 
 The app is for women who want to lose fat while protecting muscle, training consistency, recovery, health signals, cycle/perimenopause context, and nutrition basics.
 
@@ -27,8 +27,8 @@ Current local URL:
 
 Repo and live app:
 
-- Repo: `https://github.com/nfbfrog/formforge`
-- Live: `https://nfbfrog.github.io/formforge/`
+- Repo: `https://github.com/nfbfrog/forged-form`
+- Live: `https://nfbfrog.github.io/forged-form/`
 - Every push to `main` runs lint + tests + build in GitHub Actions and auto-deploys to the live URL on green.
 
 Validation:
@@ -181,6 +181,6 @@ Important:
 
 ## Partner Notes
 
-The important correction: FormForge should lead as a women's health app.
+The important correction: Forged-Form should lead as a women's health app.
 
 Any future AI, backend, or business functionality should support the health experience quietly. It should not become the main product surface.

@@ -3,9 +3,11 @@ import { AlertTriangle, Camera, Check, Circle, HeartPulse, ShieldCheck, Trending
 import { db } from '../db'
 import { sessions } from '../data'
 import { SectionHeading } from '../App'
+import { Sparkline } from '../components/Sparkline'
 import { emptyHabits, habitKeys, type WeeklyMetric } from '../types'
 import { classifyBloodPressure, weightLossStatus, type BpStatus } from '../utils/health'
 import { friendlyDate, localDateKey, startOfWeek, weekKeys } from '../utils/date'
+import { formatRate, weeklyRate, type TrendPoint } from '../utils/trends'
 
 const shortHabit = {
   protein: 'Protein',
@@ -27,6 +29,7 @@ export function WeekScreen() {
   }
   const previousWeekStart = localDateKey(new Date(startOfWeek().getTime() - 7 * 24 * 60 * 60 * 1000))
   const previousMetric = useLiveQuery(() => db.weeklyMetrics.get(previousWeekStart), [previousWeekStart])
+  const allMetrics = useLiveQuery(() => db.weeklyMetrics.toArray(), []) ?? []
 
   async function save(update: (current: WeeklyMetric) => WeeklyMetric) {
     const current = await db.weeklyMetrics.get(weekStart) ?? metric
@@ -42,10 +45,32 @@ export function WeekScreen() {
   const weightStatus = weightLossStatus(metric.weight, previousMetric?.weight)
   const consistencyTone = completed >= 25 ? 'good' : completed >= 15 ? 'watch' : 'base'
 
+  const loggedDays = logs.length
+  const proteinDays = logs.filter((log) => log.habits?.protein).length
+  const sortedMetrics = [...allMetrics].sort((a, b) => a.weekStart.localeCompare(b.weekStart))
+  const series = (pick: (m: WeeklyMetric) => number | undefined): TrendPoint[] =>
+    sortedMetrics
+      .flatMap((m) => {
+        const value = pick(m)
+        return value !== undefined && value !== null ? [{ weekStart: m.weekStart, value }] : []
+      })
+      .slice(-8)
+  const markersLogged = [
+    metric.weight,
+    metric.waist,
+    metric.systolic && metric.diastolic,
+    metric.restingPulse,
+    metric.bestLift,
+    metric.photo,
+  ].filter(Boolean).length
+
   return (
     <div className="content-stack">
       <section>
-        <SectionHeading title="This week" detail={`${completed} of 35 anchors complete`} />
+        <SectionHeading
+          title="This week"
+          detail={`${completed} of 35 anchors · protein ${proteinDays}/${loggedDays || 0} logged days · ${trainingCompleted}/${sessions.length} sessions`}
+        />
         <div className="insight-grid">
           <InsightCard icon={ShieldCheck} label="Consistency" value={`${completed}/35`} detail={completed >= 25 ? 'Strong week. Keep meals boring and repeatable.' : 'One more anchor today changes the week.'} tone={consistencyTone} />
           <InsightCard icon={HeartPulse} label="Blood pressure" value={bpStatus?.label ?? 'Not logged'} detail={bpStatus?.detail ?? 'Add systolic and diastolic once this week.'} tone={bpStatus?.tone ?? 'base'} />
@@ -77,6 +102,15 @@ export function WeekScreen() {
         </div>
       </section>
 
+      <section>
+        <SectionHeading title="Trends" detail="Six-week lines from your weekly check-ins. Direction beats any single number." />
+        <div className="trend-grid">
+          <TrendCard label="Weight" unit="lb" points={series((m) => m.weight)} />
+          <TrendCard label="Waist" unit="in" points={series((m) => m.waist)} />
+          <TrendCard label="Resting pulse" unit="bpm" points={series((m) => m.restingPulse)} />
+        </div>
+      </section>
+
       <section className="split-section">
         <div>
           <SectionHeading title="Training sessions" detail={`${trainingCompleted} of ${sessions.length} sessions complete. Aim for consistency, not a perfect calendar.`} />
@@ -102,7 +136,7 @@ export function WeekScreen() {
         </div>
 
         <div>
-          <SectionHeading title="Weekly markers" detail="One check-in, same conditions when possible." />
+          <SectionHeading title="Weekly markers" detail={`${markersLogged} of 6 logged. One check-in, same conditions when possible.`} />
           <div className="metric-grid">
             <NumberField label="Weight" suffix="lb" value={metric.weight} onChange={(weight) => void save((current) => ({ ...current, weight }))} />
             <NumberField label="Waist" suffix="in" value={metric.waist} onChange={(waist) => void save((current) => ({ ...current, waist }))} />
@@ -124,6 +158,30 @@ export function WeekScreen() {
         </div>
       </section>
     </div>
+  )
+}
+
+function TrendCard({ label, unit, points }: { label: string; unit: string; points: TrendPoint[] }) {
+  const values = points.map((point) => point.value)
+  const latest = values.at(-1)
+  const rate = weeklyRate(points)
+  return (
+    <article className="trend-card">
+      <span className="trend-label">{label}</span>
+      {points.length >= 2 ? (
+        <>
+          <div className="trend-value"><strong>{latest}</strong><small>{unit}</small></div>
+          <Sparkline values={values} ariaLabel={`${label}: ${values.join(', ')} ${unit}`} />
+          <span className="trend-delta">{formatRate(rate, unit)} · {points.length} check-ins</span>
+        </>
+      ) : (
+        <p className="trend-empty">
+          {latest !== undefined
+            ? `${latest} ${unit} logged — next week's check-in starts the line.`
+            : 'Two weekly check-ins start this trend line.'}
+        </p>
+      )}
+    </article>
   )
 }
 

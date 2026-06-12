@@ -31,12 +31,12 @@ export function Onboarding({ settings }: { settings: Settings }) {
   }
 
   return (
-    <div className="onboarding" role="dialog" aria-modal="true" aria-label="Welcome to FormForge">
+    <div className="onboarding" role="dialog" aria-modal="true" aria-label="Welcome to Forged-Form">
       <div className="onboarding-card">
         {step === 0 ? (
           <div className="onboarding-step">
             <span className="eyebrow">Welcome</span>
-            <h2>FormForge</h2>
+            <h2>Forged-Form</h2>
             <p>
               A calm place to track protein, training, and the body signals that matter —
               built around women's health.

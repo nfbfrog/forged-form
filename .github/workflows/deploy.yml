@@ -31,7 +31,7 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          VITE_BASE: /formforge/
+          VITE_BASE: /forged-form/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

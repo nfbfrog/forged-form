@@ -1,14 +1,14 @@
-# Claude Handoff: FormForge — Premium Build Spec
+# Claude Handoff: Forged-Form — Premium Build Spec
 
-You are continuing a prototype called **FormForge** and elevating it to a premium product.
+You are continuing a prototype called **Forged-Form** and elevating it to a premium product.
 
 ## One-Sentence Product Definition
 
-FormForge is a mobile-first women's health and body recomposition app that helps users track protein, training, habits, symptoms, cycle/perimenopause context, vitals, labs, and coach-ready progress summaries — with the polish and calm of a flagship health product.
+Forged-Form is a mobile-first women's health and body recomposition app that helps users track protein, training, habits, symptoms, cycle/perimenopause context, vitals, labs, and coach-ready progress summaries — with the polish and calm of a flagship health product.
 
 ## North Star
 
-FormForge should feel like the app a thoughtful friend who happens to be a great strength coach and a women's health nurse would build: private, fast, beautiful, and quietly smart. Every screen earns its place. Every tap is one-thumb-reachable. Nothing nags, sells, or diagnoses.
+Forged-Form should feel like the app a thoughtful friend who happens to be a great strength coach and a women's health nurse would build: private, fast, beautiful, and quietly smart. Every screen earns its place. Every tap is one-thumb-reachable. Nothing nags, sells, or diagnoses.
 
 ## Current Working Directory
 
@@ -24,19 +24,19 @@ The project is a real repo with a live deployment. This is the canonical path fo
 2. Commit on `main` and push:
 
 ```text
-Repo: https://github.com/nfbfrog/formforge
+Repo: https://github.com/nfbfrog/forged-form
 ```
 
 3. GitHub Actions (`.github/workflows/deploy.yml`) runs lint + tests + build on every push to `main`. A failed check blocks the deploy.
 4. On green, it deploys to GitHub Pages automatically:
 
 ```text
-Live: https://nfbfrog.github.io/formforge/
+Live: https://nfbfrog.github.io/forged-form/
 ```
 
 Build notes:
 
-- The Pages build sets `VITE_BASE=/formforge/`; local dev stays at `/`. Base is wired through `vite.config.ts` (including the PWA manifest `start_url`/`scope`).
+- The Pages build sets `VITE_BASE=/forged-form/`; local dev stays at `/`. Base is wired through `vite.config.ts` (including the PWA manifest `start_url`/`scope`).
 - Dev server port 4175 is enforced with `strictPort` in `vite.config.ts`.
 - Never commit `.env` files; Supabase keys are env vars only (see `.env.example`).
 
@@ -74,7 +74,7 @@ Audit decisions now locked into the product (2026-06-11):
 - Coach-share notes default OFF (opt-in); symptom counts stay default ON.
 - Topbar: h1 is always the tab name; flavor copy lives in the eyebrow.
 - Shape tokens: `--radius-card: 12px`, `--radius-control: 8px` — no hard-coded radii.
-- Design-system spec cards live in `public/design-system/` (six @dsCard previews, both themes) and deploy with the app — live style guide at `https://nfbfrog.github.io/formforge/design-system/`. To mirror them into a claude.ai/design project, run DesignSync from an interactive `claude` session after `/login` (this headless environment can't get design scopes).
+- Design-system spec cards live in `public/design-system/` (six @dsCard previews, both themes) and deploy with the app — live style guide at `https://nfbfrog.github.io/forged-form/design-system/`. To mirror them into a claude.ai/design project, run DesignSync from an interactive `claude` session after `/login` (this headless environment can't get design scopes).
 
 Latest verified state (Phase 1 + audit pass complete):
 
@@ -484,7 +484,7 @@ Supabase bridge:
 src/lib/supabase.ts
 src/lib/cloudSync.ts
 src/lib/supabase.types.ts
-supabase/migrations/001_formforge_core.sql
+supabase/migrations/001_forged-form_core.sql
 ```
 
 Important:
@@ -551,4 +551,4 @@ Do not resurrect the previous AI/Studio/OPP direction.
 
 That was the wrong product path.
 
-FormForge is a women's health/body recomposition tracker with optional coach-friendly sharing — now being built to a premium standard. The premium bar is earned through design coherence, speed, privacy, and genuinely useful local intelligence — never through cloud features, AI branding, or anything that compromises the product rules above.
+Forged-Form is a women's health/body recomposition tracker with optional coach-friendly sharing — now being built to a premium standard. The premium bar is earned through design coherence, speed, privacy, and genuinely useful local intelligence — never through cloud features, AI branding, or anything that compromises the product rules above.

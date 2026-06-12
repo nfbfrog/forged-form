@@ -102,7 +102,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    document.title = 'FormForge'
+    document.title = 'Forged-Form'
   }, [])
 
   const themePreference = settings?.theme ?? 'system'
@@ -125,7 +125,7 @@ function App() {
         <div className="brand">
           <span className="brand-mark"><Sparkles size={18} /></span>
           <div>
-            <strong>FormForge</strong>
+            <strong>Forged-Form</strong>
             <span>private by design</span>
           </div>
         </div>

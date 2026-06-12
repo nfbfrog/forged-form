@@ -1,4 +1,4 @@
--- FormForge core schema
+-- Forged-Form core schema
 -- Run this in Supabase SQL editor or as the first migration.
 
 create extension if not exists "pgcrypto";

@@ -65,7 +65,7 @@ export function formatCoachShareSummary(payload: CoachSharePayload) {
   const sessions = new Set(exerciseEntries.map((entry) => `${entry.date}-${entry.sessionId}`)).size
 
   return [
-    'FormForge Coach Summary',
+    'Forged-Form Coach Summary',
     `${friendlyDate(range.start)} - ${friendlyDate(range.end)}`,
     '',
     `Days logged: ${loggedDays}/${range.days}`,
@@ -111,7 +111,7 @@ export async function downloadCoachPacket(options: CoachShareOptions) {
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = url
-  anchor.download = `formforge-coach-packet-${payload.range.end}.json`
+  anchor.download = `forged-form-coach-packet-${payload.range.end}.json`
   anchor.click()
   URL.revokeObjectURL(url)
   return summary

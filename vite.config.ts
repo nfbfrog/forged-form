@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// Deploys under a sub-path on GitHub Pages (e.g. /formforge/); defaults to root for local dev.
+// Deploys under a sub-path on GitHub Pages (e.g. /forged-form/); defaults to root for local dev.
 const base = process.env.VITE_BASE ?? '/'
 
 export default defineConfig({
@@ -17,8 +17,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['app-icon.svg'],
       manifest: {
-        name: 'FormForge',
-        short_name: 'FormForge',
+        name: 'Forged-Form',
+        short_name: 'Forged-Form',
         description: 'A private, mobile-first body recomposition planner for women.',
         theme_color: '#143a36',
         background_color: '#f7f5ef',

@@ -1,4 +1,4 @@
-# FormForge
+# Forged-Form
 
 Mobile-first women's health and body recomposition tracker with coach-ready summaries.
 
@@ -34,7 +34,7 @@ npm run build
 ## Supabase Setup
 
 1. Create a Supabase project.
-2. Run `supabase/migrations/001_formforge_core.sql` in the Supabase SQL editor.
+2. Run `supabase/migrations/001_forged-form_core.sql` in the Supabase SQL editor.
 3. Copy `.env.example` to `.env`.
 4. Fill in:
 
@@ -45,7 +45,7 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-or-publishable-key
 
 5. Restart the dev server.
 
-Cloud sync is optional. Without these env vars, FormForge stays local-only.
+Cloud sync is optional. Without these env vars, Forged-Form stays local-only.
 
 ## Vercel Setup
 
@@ -72,7 +72,7 @@ Do not put Supabase service-role keys in the browser app.
 
 ## Product Shape
 
-FormForge is built as a daily-use mobile app for women running body recomposition: fat loss with muscle retention, strength training, symptom awareness, cycle/perimenopause context, and practical health tracking.
+Forged-Form is built as a daily-use mobile app for women running body recomposition: fat loss with muscle retention, strength training, symptom awareness, cycle/perimenopause context, and practical health tracking.
 
 Current sections:
 
